@@ -1,4 +1,6 @@
+import { Button, TextField, Typography, Grid, Box } from '@mui/material';
 import {useEffect, useReducer} from 'react'
+import ConfirmationDialog from './ConfirmationDialog';
 
 const SECURITY_CODE = 'test';
 
@@ -88,36 +90,41 @@ export default function Main() {
         }
     }, [state.loading])
 
-    let viewToShow = '';
 
-    if(!state.deleted && !state.isPasswordCorrect){
-        viewToShow = <div>
-            <h2>Eliminar Repositorio</h2>
-            <p>Por favor, escribe el codigo de seguridad</p>
-
-            {state.error && !state.loading && (
-                <p>Error: el código es incorrecto</p>
-            )}
-            {state.loading && (
-                <p>Cargando...</p>
-            )}
-
-            <input placeholder="codigo de seguridad" value={state.confirmationCode} onChange={onWrite}/>
-            <button type="button" onClick={onCheck}>Comprobar</button>
-        </div>
-    } else if(state.isPasswordCorrect && !state.deleted){
-        viewToShow = <div>
-            <h1>Vista Confirmacion</h1>
-            <p>¿Deseas eliminar el estado?</p>
-            <button onClick={onDeleted}>Si</button>
-            <button onClick={onReset}>No</button>
-        </div>
-    } else {
-        viewToShow = <div>
-            <h1>Eliminado con exito</h1>
-            <button onClick={onReset}>Volver al inicio</button>
-        </div>
+    if(state.deleted) {
+        return <Box mt={2}>
+            <Typography variant="h3">Repositorio eliminado con exito</Typography>
+            <Box mt={4}>
+                <Button variant="contained" onClick={onReset}>Volver al inicio</Button>
+            </Box>
+        </Box>
     }
 
-    return viewToShow;
+    return <Box m={2}>
+        <Typography variant="h3">Eliminar Repositorio</Typography>
+        <Box mt={4} mb={4}>
+            <Typography>Por favor, escribe el codigo de seguridad</Typography>
+        </Box>
+
+        {state.error && !state.loading && (
+            <Box mt={2} mb={2}>
+                <Typography>Error: el código es incorrecto</Typography>
+            </Box>
+        )}
+        {state.loading && (
+            <Box mt={2} mb={2}>
+                <Typography>Cargando...</Typography>
+            </Box>
+        )}
+
+        <Grid container justifyContent="center" >
+            <TextField label="Codigo de seguridad" value={state.confirmationCode} onChange={onWrite}/>
+            <Button variant="contained" color="error" onClick={onCheck}>Eliminar</Button>
+        </Grid>
+        {
+            state.isPasswordCorrect && !state.deleted && (
+                <ConfirmationDialog onDeleted={onDeleted} onReset={onReset} />
+            )
+        }
+    </Box>
 }
